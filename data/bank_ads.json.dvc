@@ -1,0 +1,5 @@
+outs:
+- md5: 9dc3f3ab1a6d19e9d281d4e1df62b933
+  size: 68864
+  hash: md5
+  path: bank_ads.json

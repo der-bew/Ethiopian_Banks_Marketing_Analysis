@@ -10,10 +10,8 @@ class Handler():
     def data_overview(self):
         print(f"Number of rows: {len(self.df)}")
         print(f"Number of columns: {len(self.df.columns)}")
-        print("\nData Types:")
-        print(self.df.dtypes)
-        print("\nDescriptive Statistics:")
-        print(self.df.describe())
+        print("\nBasic Information:")
+        print(self.df.info())
     
     def check_duplicate(self):
         # Identify and report duplicated values
@@ -59,18 +57,24 @@ class Handler():
         Removes outliers from a DataFrame based on the Interquartile Range (IQR).
         """
         # Filter out non-numeric columns
-        numeric_cols = self.df.select_dtypes(include=['float64']).columns
+        numeric_cols = self.df.select_dtypes(exclude=[np.object]).columns
         
         # Apply the IQR method to numeric columns
         for col in numeric_cols:
             q1 = self.df[col].quantile(0.25)
             q3 = self.df[col].quantile(0.75)
             iqr = q3 - q1
-            lower_bound = q1 - 1.5 * iqr
-            upper_bound = q3 + 1.5 * iqr
-            self.df.loc[self.df[col] < lower_bound, col] = lower_bound
-            self.df.loc[self.df[col] > upper_bound, col] = upper_bound
+            
+            # Remove outliers by setting them to NaN
+            self.df.loc[(self.df[col] < (q1 - 1.5 * iqr)) | (self.df[col] > (q3 + 1.5 * iqr)), col] = np.nan
+        
+        # Optionally, fill NaNs with mean or median of the column
+        self.df.fillna(method='ffill', inplace=True)
         
         return self.df
+
+    def stats(self):
+        print("\nDescriptive Statistics:")
+        print(self.df.describe())
 
 
